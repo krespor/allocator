@@ -7,6 +7,6 @@ project(${PROJECT_NAME})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-O3")
 
-include_directories("/home/konstantin/Projects/allocator/include")
+include_directories("../include")
 add_executable(${PROJECT_NAME} testBlockAllocator.cpp)
-target_link_libraries(${PROJECT_NAME} /home/konstantin/Projects/allocator/build/libblockAllocator.a)
+target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/../build/libblockAllocator.a)
