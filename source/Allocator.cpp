@@ -8,30 +8,23 @@
 #define BLOCK_SIZE 8
 #endif
 
-Allocator::Allocator() : numberBlocks(POOL_SIZE / BLOCK_SIZE)
-{
-    
-}
+uint8_t Allocator::pool[POOL_SIZE] = {0};
 
-Allocator::~Allocator()
-{
-    if (pool)
-        delete[] pool;
-}
+Allocator::Allocator() : numberBlocks(POOL_SIZE / BLOCK_SIZE){}
 
 void Allocator::init()
 {
-    pool = new uint8_t[POOL_SIZE];
+    std::lock_guard lg{mtx};
 
     createPointers();
 }
 
-uint32_t Allocator::getPoolSize()
+uint32_t Allocator::getPoolSize() const noexcept
 {
     return POOL_SIZE;
 }
 
-uint32_t Allocator::getBlockSize()
+uint32_t Allocator::getBlockSize() const noexcept
 {
     return BLOCK_SIZE;
 }
@@ -44,6 +37,8 @@ void Allocator::createPointers()
 
 Allocator::block_ptr Allocator::getBlock()
 {
+    std::lock_guard lg{mtx};
+    
     const block_ptr ch_ptr = findFreeBlock();
 
     if (ch_ptr)
@@ -54,6 +49,8 @@ Allocator::block_ptr Allocator::getBlock()
 
 void Allocator::releaseBlock(block_ptr pBlock)
 {
+    std::lock_guard lg{mtx};
+    
     if (!pointers.count(pBlock))
         throw "invalid pointer";
 
@@ -65,11 +62,13 @@ void Allocator::releaseBlock(block_ptr pBlock)
 
 void Allocator::releasePool()
 {
+    std::lock_guard lg{mtx};
+    
     for (auto &[ptr, st]: pointers)
         st = state::FREE;
 }
 
-Allocator::block_ptr Allocator::findFreeBlock()
+Allocator::block_ptr Allocator::findFreeBlock() const
 {
     const auto it = std::find_if(pointers.begin(), pointers.end(), 
     [](const std::pair<block_ptr, state>& ptrs){return ptrs.second == state::FREE;});

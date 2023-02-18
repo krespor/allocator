@@ -62,6 +62,21 @@ bool test_5()
     }
 }
 
+bool test_6()
+{
+    const uint8_t value {123};
+    Allocator::block_ptr p1 = allocator.getBlock();
+
+    *reinterpret_cast<uint8_t*>(p1) = value;
+    allocator.releaseBlock(p1);
+
+
+    Allocator::block_ptr p1_ = allocator.getBlock();
+    const uint8_t value_ = *reinterpret_cast<uint8_t*>(p1_);
+
+    return value == value_;
+}
+
 int main()
 {
     allocator.init();
@@ -71,23 +86,26 @@ int main()
 
     assert(test_1());
     allocator.releasePool();
-    std::cout << "test 1/5: successful" << std::endl;
+    std::cout << "test 1/6: successful" << std::endl;
 
     assert(test_2());
     allocator.releasePool();
-    std::cout << "test 2/5: successful" << std::endl;
+    std::cout << "test 2/6: successful" << std::endl;
 
     assert(test_3());
     allocator.releasePool();
-    std::cout << "test 3/5: successful" << std::endl;
+    std::cout << "test 3/6: successful" << std::endl;
 
     assert(test_4());
     allocator.releasePool();
-    std::cout << "test 4/5: successful" << std::endl;
+    std::cout << "test 4/6: successful" << std::endl;
 
     assert(test_5());
     allocator.releasePool();
-    std::cout << "test 5/5: successful" << std::endl;
+    std::cout << "test 5/6: successful" << std::endl;
     
+    assert(test_6());
+    allocator.releasePool();
+    std::cout << "test 6/6: successful" << std::endl;
     return 0;
 }
